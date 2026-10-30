@@ -1,5 +1,7 @@
 # Downline
 
+[![Live Demo](https://img.shields.io/badge/Website-online-brightgreen)](https://sandivd.github.io/downline/)
+
 A small local Windows app for downloading videos from YouTube, Pornhub, Instagram, TikTok, X (Twitter), and Twitch. Flat surfaces, precise spacing, warm light mode, and charcoal dark mode. Built with a Python standard-library backend and an HTML/CSS/JavaScript interface. Downloads are performed by yt-dlp.
 
 ## Open the app on Windows
@@ -34,11 +36,11 @@ Quality is a ceiling when the site reports stream heights: the original video de
 | Platform | Paste a link to |
 | --- | --- |
 | YouTube | A video or Short, including youtu.be share links |
-| Pornhub | An individual video with a viewkey |
 | Instagram | A Reel or video post, including supported share links |
 | TikTok | An individual video, including vm.tiktok.com, vt.tiktok.com, and /t/ share links |
 | X / Twitter | A video post on x.com or twitter.com; optional /video/1, /video/2, etc. |
 | Twitch | A clip or past broadcast (/videos/…) |
+| Pornhub | An individual video with a viewkey |
 
 Mix platforms in the same batch. Each queue and history entry shows its source. Short share links are resolved by the download engine. Some sites require your own signed-in cookies in **Settings → Privacy → Cookies file**. The available media still depends on the source site and your account access.
 
@@ -87,12 +89,5 @@ Open the URL printed by the server, including its session fragment. The service 
 
 Downline downloads these tools on first launch; they are not bundled in the source ZIP. YouTube support includes the official yt-dlp executable's EJS component and a Deno runtime, as described in the [yt-dlp EJS setup guide](https://github.com/yt-dlp/yt-dlp/wiki/EJS).
 
-## Website and GitHub Pages
 
-The static showcase website lives in `dist/`. Open `dist/index.html` to preview it. It includes the supplied screenshots and a download of the current Windows app. No Python service runs on the website.
 
-The included `.github/workflows/pages.yml` publishes `dist` on pushes to `main`. In the GitHub repository, select **Settings → Pages → Source → GitHub Actions**. The workflow must be uploaded along with the rest of the source. See `PUSH-TO-GITHUB.md` for the initial upload steps.
-
-`dist/downloads/Downline-Windows.zip` is intentionally tracked so the website download button works before a GitHub Release exists. The root `.gitignore` excludes only the root `/downloads/` folder, preserving this website asset. When publishing a Release later, upload the app ZIP as a release asset and switch the website download button to that real asset URL.
-
-GitHub Pages workflow reference: https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
