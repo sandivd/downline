@@ -1,5 +1,7 @@
 (() => {
   const root = document.documentElement;
+  root.dataset.motionPreference = 'full';
+  root.dataset.motionVersion = '20261030-4';
   const themeButton = document.querySelector('.theme-toggle');
   function setTheme(theme) {
     root.dataset.theme = theme;
@@ -13,7 +15,6 @@
     try { localStorage.setItem('downline-site-theme', theme); } catch { /* Theme still works when storage is unavailable. */ }
   });
   const tabs = [...document.querySelectorAll('[role="tab"]')];
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let refreshMotion = () => {};
   function selectTab(tab, focus = false) {
     tabs.forEach(item => {
@@ -41,31 +42,12 @@
   // including a fast first load. Scrolling itself always remains native.
   if (!('IntersectionObserver' in window)) return;
   const wideScreen = window.matchMedia('(min-width: 701px)');
-  const controls = [...document.querySelectorAll('[data-motion-toggle]')];
   const activeAnimations = new Set();
-  let preference = 'auto';
-  try {
-    const saved = localStorage.getItem('downline-site-motion');
-    if (saved === 'full' || saved === 'reduced') preference = saved;
-  } catch { /* Device preference still works without local storage. */ }
-  const enabled = () => preference === 'full' || (preference !== 'reduced' && !reducedMotion.matches);
   const clamp = value => Math.min(1, Math.max(0, value));
   let revealObserver;
   let frame = 0;
   let needsMeasure = true;
   let scenes = [];
-
-  function syncControls() {
-    root.dataset.motionPreference = preference;
-    root.dataset.motionVersion = '20261030-2';
-    controls.forEach(button => {
-      const isEnable = button.classList.contains('motion-enable');
-      button.hidden = isEnable && enabled();
-      button.setAttribute('aria-pressed', String(enabled()));
-      if (!isEnable) button.textContent = `Motion ${enabled() ? 'on' : 'off'}`;
-      button.title = enabled() ? 'Turn off website animations' : 'Enable website animations, including when your device prefers reduced motion';
-    });
-  }
 
   function splitLines(heading) {
     const lines = [[]];
@@ -144,7 +126,7 @@
 
   function draw() {
     frame = 0;
-    if (!enabled() || !root.classList.contains('motion-ready')) return;
+    if (!root.classList.contains('motion-ready')) return;
     if (needsMeasure) measureScenes();
     const viewport = document.documentElement.clientHeight;
     const scroll = window.scrollY;
@@ -170,7 +152,7 @@
 
   function requestDraw(measure = false) {
     needsMeasure ||= measure;
-    if (!frame && enabled() && root.classList.contains('motion-ready')) frame = requestAnimationFrame(draw);
+    if (!frame && root.classList.contains('motion-ready')) frame = requestAnimationFrame(draw);
   }
 
   function stopMotion() {
@@ -183,8 +165,6 @@
 
   function startMotion() {
     stopMotion();
-    syncControls();
-    if (!enabled()) return;
     try {
       revealObserver = new IntersectionObserver(entries => {
         entries.forEach(({ target, isIntersecting }) => {
@@ -219,17 +199,11 @@
       element.dataset.motionScene = '';
     });
     refreshMotion = () => requestDraw(true);
-    controls.forEach(button => button.addEventListener('click', () => {
-      preference = enabled() ? 'reduced' : 'full';
-      try { localStorage.setItem('downline-site-motion', preference); } catch { /* Keep the choice for this visit. */ }
-      startMotion();
-      if (button.hidden) document.querySelector('.hero-aside .primary').focus({ preventScroll: true });
-    }));
     window.addEventListener('scroll', () => requestDraw(), { passive: true });
     window.addEventListener('resize', () => requestDraw(true), { passive: true });
     window.addEventListener('pageshow', () => requestDraw(true));
     window.addEventListener('load', () => requestDraw(true), { once: true });
-    reducedMotion.addEventListener('change', startMotion);
+    if (document.fonts) document.fonts.ready.then(() => requestDraw(true));
     wideScreen.addEventListener('change', () => requestDraw(true));
     document.addEventListener('focusin', event => {
       event.target.closest('[data-motion]')?.classList.add('is-visible');
