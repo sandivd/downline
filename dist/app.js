@@ -37,15 +37,35 @@
     });
   });
 
-  // Keep native scrolling. Motion is an enhancement, never a requirement for
-  // seeing content or following a download link.
+  // Explicit keyframes give entrance effects a real start and end frame,
+  // including a fast first load. Scrolling itself always remains native.
   if (!('IntersectionObserver' in window)) return;
+  const wideScreen = window.matchMedia('(min-width: 701px)');
+  const controls = [...document.querySelectorAll('[data-motion-toggle]')];
+  const activeAnimations = new Set();
+  let preference = 'auto';
+  try {
+    const saved = localStorage.getItem('downline-site-motion');
+    if (saved === 'full' || saved === 'reduced') preference = saved;
+  } catch { /* Device preference still works without local storage. */ }
+  const enabled = () => preference === 'full' || (preference !== 'reduced' && !reducedMotion.matches);
+  const clamp = value => Math.min(1, Math.max(0, value));
   let revealObserver;
   let frame = 0;
   let needsMeasure = true;
   let scenes = [];
-  const wideScreen = window.matchMedia('(min-width: 701px)');
-  const clamp = value => Math.min(1, Math.max(0, value));
+
+  function syncControls() {
+    root.dataset.motionPreference = preference;
+    root.dataset.motionVersion = '20261030-2';
+    controls.forEach(button => {
+      const isEnable = button.classList.contains('motion-enable');
+      button.hidden = isEnable && enabled();
+      button.setAttribute('aria-pressed', String(enabled()));
+      if (!isEnable) button.textContent = `Motion ${enabled() ? 'on' : 'off'}`;
+      button.title = enabled() ? 'Turn off website animations' : 'Enable website animations, including when your device prefers reduced motion';
+    });
+  }
 
   function splitLines(heading) {
     const lines = [[]];
@@ -60,10 +80,9 @@
       mask.className = 'motion-line';
       const line = document.createElement('span');
       line.className = 'motion-line-inner';
-      line.style.setProperty('--line-index', index);
+      line.dataset.lineIndex = index;
       line.append(...nodes);
       mask.append(line);
-      // A real whitespace node keeps the accessible heading text separated.
       if (index < lines.length - 1) mask.append(document.createTextNode(' '));
       return mask;
     }));
@@ -72,8 +91,46 @@
   function mark(selector, kind = 'reveal', stagger = 0) {
     document.querySelectorAll(selector).forEach((element, index) => {
       element.dataset.motion = kind;
-      if (stagger) element.style.setProperty('--motion-delay', `${index * stagger}ms`);
+      element.dataset.motionDelay = index * stagger;
     });
+  }
+
+  function play(element, keyframes, options) {
+    if (!element.animate) return;
+    const animation = element.animate(keyframes, {
+      duration: 1000, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both', ...options,
+    });
+    activeAnimations.add(animation);
+    const cleanup = () => {
+      activeAnimations.delete(animation);
+      animation.cancel();
+    };
+    animation.addEventListener('finish', cleanup, { once: true });
+    animation.addEventListener('cancel', () => activeAnimations.delete(animation), { once: true });
+  }
+
+  function reveal(element) {
+    if (element.classList.contains('is-visible')) return;
+    element.classList.add('is-visible');
+    const mobile = !wideScreen.matches;
+    const delay = mobile ? 0 : Math.min(240, Number(element.dataset.motionDelay) || 0);
+    if (element.dataset.motion === 'lines') {
+      element.querySelectorAll('.motion-line-inner').forEach((line, index) => {
+        play(line, [{ transform: 'translate3d(0,112%,0)', opacity: 0.2 }, { transform: 'translate3d(0,0,0)', opacity: 1 }],
+          { duration: mobile ? 850 : 1150, delay: index * 130 });
+      });
+    } else if (element.dataset.motion === 'screen') {
+      play(element, [
+        { opacity: 0.2, clipPath: 'inset(10% 5% 2% 5% round 14px)' },
+        { opacity: 1, clipPath: 'inset(0 0 0 0 round 8px)' },
+      ], { duration: 1250 });
+    } else if (element.dataset.motion === 'logo') {
+      play(element, [{ opacity: 0, transform: 'translate3d(0,20px,0)' }, { opacity: 1, transform: 'translate3d(0,0,0)' }],
+        { duration: 850, delay });
+    } else {
+      play(element, [{ opacity: 0, transform: `translate3d(0,${mobile ? 26 : 48}px,0)` }, { opacity: 1, transform: 'translate3d(0,0,0)' }],
+        { duration: mobile ? 800 : 1050, delay });
+    }
   }
 
   function measureScenes() {
@@ -87,32 +144,33 @@
 
   function draw() {
     frame = 0;
-    if (reducedMotion.matches || !root.classList.contains('motion-ready')) return;
+    if (!enabled() || !root.classList.contains('motion-ready')) return;
     if (needsMeasure) measureScenes();
-    if (!wideScreen.matches) return;
     const viewport = document.documentElement.clientHeight;
     const scroll = window.scrollY;
+    const strength = wideScreen.matches ? 1 : 0.38;
     scenes.forEach(({ element, top, height }) => {
       const distance = top - scroll;
       if (!height || distance > viewport + 100 || distance + height < -100) return;
-      const progress = clamp((viewport - distance) / Math.min(viewport * 0.92, height + viewport * 0.35));
-      // Ease out as the screen reaches its reading position. Text in screenshots
-      // remains sharp and the frame finishes level, rather than drifting forever.
-      const remaining = (1 - progress) ** 2;
+      // Keep changing through the screen's entrance, rather than finishing
+      // while only its first edge is visible. Layout measurements ignore transforms.
+      const progress = clamp((viewport - distance - viewport * 0.06) /
+        (viewport * 0.84 + Math.min(height * 0.45, viewport * 0.4)));
+      const remaining = 1 - progress * progress * (3 - 2 * progress);
       if (element.matches('.download-section')) {
-        element.style.setProperty('--band-scale', (1 - remaining * 0.035).toFixed(4));
-        element.style.setProperty('--band-radius', `${(remaining * 24).toFixed(2)}px`);
+        element.style.setProperty('--band-scale', (1 - remaining * 0.085 * strength).toFixed(4));
+        element.style.setProperty('--band-radius', `${(remaining * 40 * strength).toFixed(2)}px`);
       } else {
-        element.style.setProperty('--scene-tilt', `${(remaining * 3.2).toFixed(3)}deg`);
-        element.style.setProperty('--scene-scale', (1 - remaining * 0.035).toFixed(4));
-        element.style.setProperty('--scene-y', `${(remaining * 18).toFixed(2)}px`);
+        element.style.setProperty('--scene-tilt', `${(wideScreen.matches ? remaining * 7 : 0).toFixed(3)}deg`);
+        element.style.setProperty('--scene-scale', (1 - remaining * 0.12 * strength).toFixed(4));
+        element.style.setProperty('--scene-y', `${(remaining * 52 * strength).toFixed(2)}px`);
       }
     });
   }
 
   function requestDraw(measure = false) {
     needsMeasure ||= measure;
-    if (!frame && !reducedMotion.matches && root.classList.contains('motion-ready')) frame = requestAnimationFrame(draw);
+    if (!frame && enabled() && root.classList.contains('motion-ready')) frame = requestAnimationFrame(draw);
   }
 
   function stopMotion() {
@@ -120,58 +178,65 @@
     revealObserver?.disconnect();
     cancelAnimationFrame(frame);
     frame = 0;
+    for (const animation of [...activeAnimations]) animation.cancel();
   }
 
   function startMotion() {
     stopMotion();
-    if (reducedMotion.matches) return;
+    syncControls();
+    if (!enabled()) return;
     try {
       revealObserver = new IntersectionObserver(entries => {
         entries.forEach(({ target, isIntersecting }) => {
           if (!isIntersecting) return;
-          target.classList.add('is-visible');
+          reveal(target);
           revealObserver.unobserve(target);
         });
-      }, { threshold: 0, rootMargin: '0px 0px -7% 0px' });
-      document.querySelectorAll('[data-motion]:not(.is-visible)').forEach(element => revealObserver.observe(element));
+      }, { threshold: 0, rootMargin: '0px 0px -9% 0px' });
       root.classList.add('motion-ready');
+      document.querySelectorAll('[data-motion]:not(.is-visible)').forEach(element => revealObserver.observe(element));
       requestDraw(true);
-    } catch {
+    } catch (error) {
       stopMotion();
+      console.warn('Downline animations could not start.', error);
     }
   }
 
   try {
     document.querySelectorAll('h1, h2').forEach(splitLines);
     mark('h1, h2', 'lines');
-    mark('.hero > .eyebrow, .hero-aside', 'reveal', 110);
+    mark('.hero > .eyebrow, .hero-aside', 'reveal', 130);
     mark('.platform-row > .eyebrow, .platform-note');
-    mark('.platforms li', 'logo', 45);
+    mark('.platforms li', 'logo', 60);
     mark('.section-heading > .eyebrow, .showcase-heading .eyebrow, .local-section > .eyebrow, .faq > div > .eyebrow, .download-layout > div > .eyebrow');
-    mark('.steps article', 'step', 85);
+    mark('.steps article', 'step', 130);
     mark('.source-note, .showcase-heading > p, .tabs, .screen-caption');
-    mark('.local-points article', 'reveal', 70);
-    mark('.download-option', 'reveal', 90);
+    mark('.local-points article', 'reveal', 100);
+    mark('.download-option', 'reveal', 110);
     mark('.install, .faq-list, .footer');
     mark('.hero-window, .screen-panel .app-window', 'screen');
     document.querySelectorAll('.hero-window, .screen-panel .app-window').forEach(element => {
       element.dataset.motionScene = '';
     });
     refreshMotion = () => requestDraw(true);
+    controls.forEach(button => button.addEventListener('click', () => {
+      preference = enabled() ? 'reduced' : 'full';
+      try { localStorage.setItem('downline-site-motion', preference); } catch { /* Keep the choice for this visit. */ }
+      startMotion();
+      if (button.hidden) document.querySelector('.hero-aside .primary').focus({ preventScroll: true });
+    }));
     window.addEventListener('scroll', () => requestDraw(), { passive: true });
     window.addEventListener('resize', () => requestDraw(true), { passive: true });
     window.addEventListener('pageshow', () => requestDraw(true));
     window.addEventListener('load', () => requestDraw(true), { once: true });
     reducedMotion.addEventListener('change', startMotion);
     wideScreen.addEventListener('change', () => requestDraw(true));
-    // Keyboard and anchor navigation must never land on an invisible control.
     document.addEventListener('focusin', event => {
-      const element = event.target.closest('[data-motion]');
-      if (element) element.classList.add('is-visible');
+      event.target.closest('[data-motion]')?.classList.add('is-visible');
     });
     startMotion();
-  } catch {
+  } catch (error) {
     stopMotion();
+    console.warn('Downline animations could not start.', error);
   }
 })();
-
