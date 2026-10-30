@@ -4,7 +4,6 @@
   <img src="dist/assets/logo.png" alt="Downline logo" width="400">
 </picture>
 
-# ▶️ Downline
 
 [![Live Demo](https://img.shields.io/badge/Website-online-brightgreen)](https://sandivd.github.io/downline/)
 
