@@ -2,7 +2,7 @@
 
 [![Live Demo](https://img.shields.io/badge/Website-online-brightgreen)](https://sandivd.github.io/downline/)
 
-A small local Windows app for downloading videos from YouTube, Pornhub, Instagram, TikTok, X (Twitter), and Twitch. Flat surfaces, precise spacing, warm light mode, and charcoal dark mode. Built with a Python standard-library backend and an HTML/CSS/JavaScript interface. Downloads are performed by yt-dlp.
+A small local app for Windows and Linux. Download videos from YouTube, Pornhub, Instagram, TikTok, X (Twitter), and Twitch. Flat surfaces, precise spacing, warm light mode, and charcoal dark mode. Built with a Python standard-library backend and an HTML/CSS/JavaScript interface. Downloads are performed by yt-dlp.
 
 ## Open the app on Windows
 
@@ -16,6 +16,32 @@ You do not need to install Python, Node, FFmpeg, or enter terminal commands. Set
 If you already installed an earlier Downline version, quit Downline with its power button and copy the updated app files into your existing Downline folder, choosing Replace. Keep your existing `runtime` folder so the tools do not need to download again.
 
 Downline always uses your system default web browser. Older saved browser preferences are ignored. To change the browser, update the default web browser in Windows Settings.
+
+## Open the app on Linux
+
+Download **Downline-Linux.tar.gz** from the website and extract the entire archive. The Linux package supports **x86-64 and ARM64 desktop distributions with glibc 2.35+**, including Ubuntu 22.04 and newer. Alpine/musl, 32-bit Linux and macOS are not supported by this launcher.
+
+1. Install **Python 3.10+**, **FFmpeg** (including `ffprobe`), and **xdg-utils**, using your distribution's package manager. On Ubuntu / Debian:
+
+   ```sh
+   sudo apt update
+   sudo apt install python3 ffmpeg xdg-utils
+   ```
+
+2. Open a terminal in the extracted `Downline` folder and run:
+
+   ```sh
+   bash start-downline.sh
+   ```
+
+3. On first launch, setup downloads official yt-dlp and Deno executables for your architecture, checks their SHA-256 values, and stores them in `runtime/tools`. It uses your system FFmpeg through local symlinks. No pip installation is needed and the launcher itself needs no administrator access.
+4. Downline opens in your default browser. Keep the terminal open while using it. Use the sidebar power button to quit, then close the terminal.
+
+The Linux archive preserves execute permissions, so `./start-downline.sh` also works. Launching scripts by double-click depends on your file manager; the terminal command works consistently. In Settings, enter full Linux folder/file paths, such as `/home/yourname/Downloads/Downline`; the native Browse dialog is Windows-only. The file manager must support `xdg-open` to open completed files and folders.
+
+Settings and history are stored in `~/.local/share/Downline`, unless overridden with `DOWNLINE_DATA_DIR`. Downloads default to `~/Downloads/Downline`. Keep `runtime` when replacing app files. To install/check the tools without opening Downline, run `bash start-downline.sh --setup-only`. To run without opening a browser, use `--no-browser` and open the printed local URL yourself.
+
+The initial Linux tool versions are pinned to yt-dlp **2026.10.26** and Deno **2.9.8**, using the SHA-256 digests published with those exact official release assets. **Settings → Check for updates** updates the local yt-dlp executable. Linux system packages remain managed by your package manager. The archive contains source and launchers, not preinstalled runtimes; the first setup needs access to GitHub releases.
 
 ## Download a video
 
@@ -48,7 +74,7 @@ Mix platforms in the same batch. Each queue and history entry shows its source. 
 
 Settings allow 1–3 simultaneous downloads. **Pause queue** stops waiting videos from starting; current transfers continue. Cancel stops the selected download, including its processing tools. Retry continues partial downloads where the site and protocol support it. A cancelled or interrupted video is never automatically restarted.
 
-Download history and settings live in `%LOCALAPPDATA%\Downline`. Nothing is sent to an app account or analytics service. The download engine contacts the video sites and their media servers. No remote thumbnail images or fonts are loaded by the interface. Clearing history removes entries, not video files. Turning history off stops entries from being saved between sessions; entries remain visible during the current session.
+Download history and settings live in `%LOCALAPPDATA%\Downline` on Windows and `~/.local/share/Downline` on Linux. Nothing is sent to an app account or analytics service. The download engine contacts the video sites and their media servers. No remote thumbnail images or fonts are loaded by the interface. Clearing history removes entries, not video files. Turning history off stops entries from being saved between sessions; entries remain visible during the current session.
 
 Partial files are retained in a `.downline-partials` folder inside the chosen destination. They can be removed manually after a cancelled download is no longer needed. Retrying uses that same partial workspace. Completed jobs use unique filename suffixes to avoid collisions between different format or quality downloads.
 
@@ -64,7 +90,7 @@ If setup fails, its window stays open with the error. Check that your network al
 
 ## Source and development
 
-The source code is included. The app backend has no third-party Python dependencies. On another OS, install yt-dlp with its default dependencies, FFmpeg, and a supported JavaScript runtime, then run:
+The source code is included. The app backend has no third-party Python dependencies. For an alternative source installation, install yt-dlp with its default dependencies, FFmpeg, and a supported JavaScript runtime, then run:
 
 ```sh
 python3 app.py
@@ -87,7 +113,8 @@ Open the URL printed by the server, including its session fragment. The service 
 - [Deno](https://github.com/denoland/deno): MIT and third-party notices.
 - [Python](https://www.python.org/downloads/release/python-31317/): Python Software Foundation licence; the runtime archive includes its licence.
 
-Downline downloads these tools on first launch; they are not bundled in the source ZIP. YouTube support includes the official yt-dlp executable's EJS component and a Deno runtime, as described in the [yt-dlp EJS setup guide](https://github.com/yt-dlp/yt-dlp/wiki/EJS).
+The Windows launcher downloads all four tools on first launch. The Linux launcher downloads yt-dlp and Deno and uses your system Python and FFmpeg. No tool binaries are bundled in these source packages. YouTube support includes the official yt-dlp executable's EJS component and a Deno runtime, as described in the [yt-dlp EJS setup guide](https://github.com/yt-dlp/yt-dlp/wiki/EJS).
+
 
 
 
