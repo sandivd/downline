@@ -6,6 +6,7 @@ Your local video downloader
 
 2. Open the Downline folder.
    Double-click: Start Downline.cmd
+   It opens your default web browser.
 
 3. The first launch downloads the tools it needs.
    Leave the setup window open. It can take a few minutes.
@@ -35,13 +36,6 @@ Then run Start Downline.cmd again.
 Twitch: use a clip or past broadcast, not a live channel.
 For posts with several videos, the first video is saved.
 Instagram and some restricted posts may need your own cookies.txt in Settings.
-
-TO CHOOSE THE EXACT BRAVE BETA INSTALLATION
-
-Run Choose Brave Beta.cmd once.
-In Brave Beta, open brave://version and copy Executable Path.
-Paste that path into the chooser's File name field and click Open.
-Downline will remember this executable for future launches.
 
 Requires 64-bit Windows 10 or 11 and an internet connection.
 Some site-restricted videos may not be downloadable.

@@ -7,13 +7,13 @@ A small local Windows app for downloading videos from YouTube, Pornhub, Instagra
 1. Extract **the entire ZIP** to a normal folder, such as `Documents\Downline`. Do not run it from inside the ZIP.
 2. Double-click **Start Downline.cmd**.
 3. On the first launch, leave the setup window open while it downloads the required tools. Allow several minutes and roughly 300–500 MB of free space. An internet connection is required.
-4. The app opens using the saved Brave Beta executable, or detects Beta in standard Windows locations. If no executable is found, a file chooser asks you to select it. Windows launch errors are shown instead of silently opening a different browser.
+4. The app opens in your default web browser. No particular browser is required; Windows uses your default HTTP browser association.
 
 You do not need to install Python, Node, FFmpeg, or enter terminal commands. Setup uses the Windows built-in PowerShell and writes its runtime beside the app. It needs no administrator access and does not change your system PATH. Requires 64-bit Windows 10 or 11; x64 binaries are used.
 
 If you already installed an earlier Downline version, quit Downline with its power button and copy the updated app files into your existing Downline folder, choosing Replace. Keep your existing `runtime` folder so the tools do not need to download again.
 
-To select the exact browser, run **Choose Brave Beta.cmd** once. In Brave Beta, `brave://version` shows **Executable Path**; paste that full path into the chooser's **File name** field and click Open. Downline remembers the selected executable for future launches. The selection relies on the file you choose; it does not independently attest the browser channel. You can run the chooser again to correct or change the path. The executable path is saved at `%LOCALAPPDATA%\Downline\browser.json`, and the most recently requested executable is recorded at `%LOCALAPPDATA%\Downline\browser-launch.json` without its session URL.
+Downline always uses your system default web browser. Older saved browser preferences are ignored. To change the browser, update the default web browser in Windows Settings.
 
 ## Download a video
 

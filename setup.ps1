@@ -1,4 +1,3 @@
-param([switch]$ChooseBrowser)
 
 # Runs with the Windows built-in PowerShell. No administrator access required.
 $ErrorActionPreference = 'Stop'
@@ -129,7 +128,6 @@ try {
     Write-Host '  Opening Downline...'
     $AppScript = Join-Path $AppRoot 'launch.pyw'
     $LaunchArgs = @('"' + $AppScript + '"')
-    if ($ChooseBrowser) { $LaunchArgs += '--choose-browser' }
     Start-Process -FilePath $Python -ArgumentList $LaunchArgs -WorkingDirectory $AppRoot | Out-Null
 } catch {
     Write-Host ''

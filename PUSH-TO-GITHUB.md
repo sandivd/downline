@@ -1,6 +1,23 @@
 # Push Downline to GitHub
 
-This folder combines the current Windows app source and the static website. Nothing has been pushed or published yet.
+This folder combines the current Windows app source and the static website.
+
+## Update your existing repository
+
+For the default-browser fix, extract this ZIP and copy the contents of the inner `Downline` folder into your existing local repository, replacing matching files. Keep your existing `.git` and `runtime` folders. Delete the two old browser-selection shortcut files from the repository root; they are no longer used. Then run these commands from the repository folder:
+
+```sh
+git rm --ignore-unmatch -- "*Browser.cmd" "Choose*.cmd"
+git add .
+git commit -m "Simplify startup to use the default browser"
+git push
+```
+
+This updates the app source, the website download ZIP and the website's setup text together. It does not create a new repository or replace Git history. GitHub Pages will rebuild from the push. Quit any running local Downline instance with the sidebar power button before trying the updated app. Run `Start Downline.cmd` to open your default browser.
+
+## First-time repository setup
+
+Use the following only when creating a new empty repository.
 
 1. Create a new **public** repository named **Downline** under **sandivd**. Leave the automatic README, licence and gitignore options unchecked because these files are already included.
 2. Extract this ZIP. Open the inner `Downline` folder. Its root should contain `app.py`, `README.md`, `ui`, `tests`, `dist`, and `.github`.
@@ -29,4 +46,4 @@ After pushing, select **Settings → Pages → Source → GitHub Actions**. Run 
 
 Later, make a GitHub Release and attach `dist/downloads/Downline-Windows.zip` as its downloadable asset. The website's download button already works from the tracked copy, so creating a Release isn't required for the first website deployment. Instructions for switching to a real release URL are in `website-docs/README.md`.
 
-The current Windows build requires Brave Beta and downloads its runtime tools on first launch. These requirements are stated on the website. No local runtime, cookies, browser profile, personal settings or downloaded videos are included in this folder.
+The current Windows build opens your default browser and downloads its runtime tools on first launch. First-launch requirements are stated on the website. No local runtime, cookies, browser profile, personal settings or downloaded videos are included in this folder.

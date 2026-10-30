@@ -8,7 +8,7 @@ Open `dist/index.html`. Theme switching, screenshot tabs, FAQ and the app downlo
 
 ## Publish to GitHub Pages
 
-This package has not been pushed to GitHub or published. Create or choose your website repository under **sandivd**. Upload the **contents of this folder**, preserving `dist` and `.github/workflows/pages.yml`; don't upload the outer `Downline-Website` folder as another nesting level.
+For an initial deployment, create or choose your website repository under **sandivd**. For an existing repository, commit and push the updated files normally. Upload the **contents of this folder**, preserving `dist` and `.github/workflows/pages.yml`; don't upload the outer `Downline-Website` folder as another nesting level.
 
 In the repository's **Settings → Pages**, choose **GitHub Actions** as the source. The included workflow publishes `dist` when changes are pushed to `main`. You can also run it manually in the Actions tab. Repository names and domains are not hard-coded, so project Pages URLs work too.
 
@@ -16,7 +16,7 @@ If using the browser upload interface, make sure the `.github/workflows/pages.ym
 
 ## App downloads and GitHub Releases
 
-The download link currently points to `dist/downloads/Downline-Windows.zip`, which is the unchanged current Windows app package. It works immediately in a local preview and after deployment. This is a source-and-launcher ZIP, not an installer or standalone EXE. The app downloads its runtime tools on first launch and currently requires Brave Beta.
+The download link currently points to `dist/downloads/Downline-Windows.zip`, which contains the current Windows app package. It works immediately in a local preview and after deployment. This is a source-and-launcher ZIP, not an installer or standalone EXE. The app downloads its runtime tools on first launch and opens your default web browser.
 
 Once you create a GitHub Release, upload `Downline-Windows.zip` as its asset, then replace the download button's relative `href` in `dist/index.html` with that real release asset URL. For a cross-origin release URL, remove the `download` attribute and let GitHub's asset response handle the download. Delete the now-unneeded `dist/downloads/Downline-Windows.zip` after updating the link. No repository or release URL has been invented in this website.
 

@@ -632,85 +632,23 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(500, {"error": "Something went wrong. Close and reopen Downline."})
 
 
-def brave_beta_candidates():
-    suffix = "BraveSoftware/Brave-Browser-Beta/Application/brave.exe"
-    return [Path(os.environ[base]) / suffix
-            for base in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA")
-            if os.environ.get(base)]
-
-
-def pick_brave_beta(initial=None):
-    # Pass the initial location as process data, never interpolate paths into
-    # PowerShell code. The user can paste a custom executable path into File name.
-    script = (
-        "[Console]::OutputEncoding=[System.Text.Encoding]::UTF8; "
-        "Add-Type -AssemblyName System.Windows.Forms; "
-        "$f=New-Object System.Windows.Forms.Form; $f.TopMost=$true; "
-        "$d=New-Object System.Windows.Forms.OpenFileDialog; "
-        "$d.Title='Choose Brave Beta - select brave.exe (Executable Path at brave://version)'; "
-        "$d.Filter='Brave executable (brave.exe)|brave.exe'; "
-        "$d.CheckFileExists=$true; $d.Multiselect=$false; "
-        "if($env:DOWNLINE_BROWSER_PICK_START){$d.FileName=$env:DOWNLINE_BROWSER_PICK_START}; "
-        "if($d.ShowDialog($f) -eq 'OK'){[Console]::Write($d.FileName)}; "
-        "$d.Dispose(); $f.Dispose()"
-    )
-    env = dict(os.environ)
-    env["DOWNLINE_BROWSER_PICK_START"] = str(initial or "")
-    result = subprocess.run(["powershell.exe", "-NoProfile", "-STA", "-Command", script],
-                            capture_output=True, text=True, encoding="utf-8-sig",
-                            creationflags=NO_WINDOW, timeout=300, env=env)
-    if result.returncode:
-        raise RuntimeError("Could not open the browser chooser. Run Choose Brave Beta.cmd again.")
-    selected = result.stdout.strip()
-    if not selected:
-        raise RuntimeError("No browser selected. Run Choose Brave Beta.cmd and select Beta's brave.exe.")
-    return Path(selected)
-
-
-def resolve_brave_beta(force_choose=False):
-    config_path = default_data_dir() / "browser.json"
-    saved = None
-    try:
-        saved = Path(json.loads(config_path.read_text(encoding="utf-8"))["executable"])
-    except (OSError, ValueError, KeyError, TypeError):
-        pass
-    if not force_choose and saved and saved.is_file() and saved.name.lower() == "brave.exe":
-        return saved
-    detected = next((p for p in brave_beta_candidates() if p.is_file()), None)
-    browser = pick_brave_beta(saved if saved and saved.is_file() else detected) if force_choose or detected is None else detected
-    if not browser.is_file() or browser.name.lower() != "brave.exe":
-        raise RuntimeError("Select Brave Beta's brave.exe. Its exact location is shown at brave://version in Beta.")
-    browser = browser.resolve()
-    atomic_json(config_path, {"executable": str(browser)})
-    return browser
-
-
-def launch_window(url, browser=None):
+def launch_window(url):
+    """Open the local interface using the system's default web browser."""
     if os.name == "nt":
-        browser = Path(browser) if browser is not None else resolve_brave_beta()
         try:
-            subprocess.Popen([str(browser), "--app=" + url, "--window-size=1240,900"], creationflags=NO_WINDOW)
+            os.startfile(url)
         except OSError as exc:
-            raise RuntimeError("Could not start the selected Brave Beta executable: " + str(browser) +
-                               "\nRun Choose Brave Beta.cmd to select its current location.") from exc
-        # Record which executable was requested, without retaining the session URL.
-        try:
-            atomic_json(default_data_dir() / "browser-launch.json", {"executable": str(browser), "time": time.time()})
-        except OSError:
-            pass
+            raise RuntimeError("Could not open your default browser. Set a default web browser in Windows Settings and try again.") from exc
         return
-    webbrowser.open(url)
+    if not webbrowser.open(url):
+        raise RuntimeError("Could not open your default browser. Set a default web browser and try again.")
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-browser", action="store_true")
-    parser.add_argument("--choose-browser", action="store_true")
     parser.add_argument("--port", type=int, default=0)
     args = parser.parse_args()
-    if args.no_browser and args.choose_browser:
-        parser.error("--choose-browser cannot be used with --no-browser")
-    browser = resolve_brave_beta(force_choose=args.choose_browser) if os.name == "nt" and not args.no_browser else None
     instance = default_data_dir() / "instance.json"
     if not args.no_browser:
         existing_url = None
@@ -724,7 +662,7 @@ def main():
         except (OSError, ValueError, KeyError):
             pass
         if existing_url is not None:
-            launch_window(existing_url, browser)
+            launch_window(existing_url)
             return
     engine = Engine()
     server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
@@ -736,7 +674,7 @@ def main():
         print("Downline is ready at " + url, flush=True)
     try:
         if not args.no_browser:
-            launch_window(url, browser)
+            launch_window(url)
         server.serve_forever(poll_interval=.3)
     except KeyboardInterrupt:
         pass
