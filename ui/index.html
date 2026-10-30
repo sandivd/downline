@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark"><title>Downline — Video downloader</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<svg class="svg-defs" aria-hidden="true"><defs>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M3 6h1M3 12h1M3 18h1"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7V5h6l2 2h10v13H3z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20.8 13a9 9 0 0 1-9.8-9.8A9 9 0 1 0 20.8 13Z"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H5v16h14V5h-3M9 11h6M9 15h6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="m10 14 4-4m-6 7-1 1a4.2 4.2 0 0 1-6-6l5-5a4.2 4.2 0 0 1 6 0m0 0 1-1a4.2 4.2 0 0 1 6 6l-5 5a4.2 4.2 0 0 1-6 0" transform="translate(2 0)"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 12 8-12 8Z"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2 7M3 4v7h7"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 3h7v7m0-7L11 13M10 4H4v16h16v-6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2zM12 9v5m0 3v1"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10M6 5a9 9 0 1 0 12 0"/></symbol>
+</defs></svg>
+<aside class="sidebar">
+  <a class="brand" href="#new" aria-label="Downline home"><span class="brand-mark"><svg><use href="#i-arrow"/></svg></span><span>downline<span class="brand-period">.</span></span></a>
+  <nav aria-label="Main navigation">
+    <button class="nav-item active" data-page="new"><svg><use href="#i-plus"/></svg><span>New download</span></button>
+    <button class="nav-item" data-page="queue"><svg><use href="#i-list"/></svg><span>Download queue</span><span class="nav-count" id="queue-count">0</span></button>
+    <button class="nav-item" data-page="history"><svg><use href="#i-clock"/></svg><span>History</span></button>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="local-note"><span class="local-dot"></span><span>Runs on your computer<small>Files saved straight to your PC</small></span></div>
+    <button class="nav-item" data-page="settings"><svg><use href="#i-settings"/></svg><span>Settings</span></button>
+    <div class="theme-row"><span id="theme-caption">Light mode</span><button id="theme-toggle" class="theme-toggle" role="switch" aria-checked="false" aria-label="Dark mode"><svg class="sun"><use href="#i-sun"/></svg><svg class="moon"><use href="#i-moon"/></svg><span class="toggle-thumb"></span></button></div>
+    <div class="sidebar-foot"><span>DOWNLINE <b>1.1</b></span><button id="quit" class="icon-button" title="Quit Downline" aria-label="Quit Downline"><svg><use href="#i-power"/></svg></button></div>
+    <a class="creator-credit" href="https://github.com/sandivd" target="_blank" rel="noopener noreferrer" aria-label="Made by sandivd — GitHub profile"><span>Made by </span><strong>sandivd</strong></a>
+  </div>
+</aside>
+<main>
+  <div id="connection-banner" class="connection-banner" role="status" hidden>Connection lost. Reopen Downline if it does not reconnect.</div>
+  <div class="content">
+    <span id="engine-status" class="engine-status" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span>Connecting…</span></span>
+    <section id="page-new" class="page">
+      <div class="hero"><div class="eyebrow"><span class="eyebrow-line"></span> LESS CLICKING. MORE WATCHING.</div><h1>Save it for later<span>.</span></h1><p>Your favourite videos, a little closer. Paste a link to get started.</p></div>
+      <div class="download-panel">
+        <div class="panel-heading"><span class="step">01</span><h2>Drop in a video link</h2><span class="platform-count">6 platforms</span></div>
+        <ul class="platform-list" aria-label="Supported platforms">
+          <li class="platform-youtube" title="YouTube"><svg role="img" aria-label="YouTube" viewBox="0 0 24 24" focusable="false"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></li>
+          <li class="platform-instagram" title="Instagram"><svg role="img" aria-label="Instagram" viewBox="0 0 24 24" focusable="false"><path d="M7.0301.084c-1.2768.0602-2.1487.264-2.911.5634-.7888.3075-1.4575.72-2.1228 1.3877-.6652.6677-1.075 1.3368-1.3802 2.127-.2954.7638-.4956 1.6365-.552 2.914-.0564 1.2775-.0689 1.6882-.0626 4.947.0062 3.2586.0206 3.6671.0825 4.9473.061 1.2765.264 2.1482.5635 2.9107.308.7889.72 1.4573 1.388 2.1228.6679.6655 1.3365 1.0743 2.1285 1.38.7632.295 1.6361.4961 2.9134.552 1.2773.056 1.6884.069 4.9462.0627 3.2578-.0062 3.668-.0207 4.9478-.0814 1.28-.0607 2.147-.2652 2.9098-.5633.7889-.3086 1.4578-.72 2.1228-1.3881.665-.6682 1.0745-1.3378 1.3795-2.1284.2957-.7632.4966-1.636.552-2.9124.056-1.2809.0692-1.6898.063-4.948-.0063-3.2583-.021-3.6668-.0817-4.9465-.0607-1.2797-.264-2.1487-.5633-2.9117-.3084-.7889-.72-1.4568-1.3876-2.1228C21.2982 1.33 20.628.9208 19.8378.6165 19.074.321 18.2017.1197 16.9244.0645 15.6471.0093 15.236-.005 11.977.0014 8.718.0076 8.31.0215 7.0301.0839m.1402 21.6932c-1.17-.0509-1.8053-.2453-2.2287-.408-.5606-.216-.96-.4771-1.3819-.895-.422-.4178-.6811-.8186-.9-1.378-.1644-.4234-.3624-1.058-.4171-2.228-.0595-1.2645-.072-1.6442-.079-4.848-.007-3.2037.0053-3.583.0607-4.848.05-1.169.2456-1.805.408-2.2282.216-.5613.4762-.96.895-1.3816.4188-.4217.8184-.6814 1.3783-.9003.423-.1651 1.0575-.3614 2.227-.4171 1.2655-.06 1.6447-.072 4.848-.079 3.2033-.007 3.5835.005 4.8495.0608 1.169.0508 1.8053.2445 2.228.408.5608.216.96.4754 1.3816.895.4217.4194.6816.8176.9005 1.3787.1653.4217.3617 1.056.4169 2.2263.0602 1.2655.0739 1.645.0796 4.848.0058 3.203-.0055 3.5834-.061 4.848-.051 1.17-.245 1.8055-.408 2.2294-.216.5604-.4763.96-.8954 1.3814-.419.4215-.8181.6811-1.3783.9-.4224.1649-1.0577.3617-2.2262.4174-1.2656.0595-1.6448.072-4.8493.079-3.2045.007-3.5825-.006-4.848-.0608M16.953 5.5864A1.44 1.44 0 1 0 18.39 4.144a1.44 1.44 0 0 0-1.437 1.4424M5.8385 12.012c.0067 3.4032 2.7706 6.1557 6.173 6.1493 3.4026-.0065 6.157-2.7701 6.1506-6.1733-.0065-3.4032-2.771-6.1565-6.174-6.1498-3.403.0067-6.156 2.771-6.1496 6.1738M8 12.0077a4 4 0 1 1 4.008 3.9921A3.9996 3.9996 0 0 1 8 12.0077"/></svg></li>
+          <li class="platform-tiktok" title="TikTok"><svg role="img" aria-label="TikTok" viewBox="0 0 24 24" focusable="false"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></li>
+          <li class="platform-x" title="X / Twitter"><svg role="img" aria-label="X / Twitter" viewBox="0 0 24 24" focusable="false"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></li>
+          <li class="platform-twitch" title="Twitch"><svg role="img" aria-label="Twitch" viewBox="0 0 24 24" focusable="false"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/></svg></li>
+          <li class="platform-pornhub" title="Pornhub"><svg role="img" aria-label="Pornhub" viewBox="0 0 198 70" focusable="false"> <rect width="198" height="70"/> <rect x="108" y="10" width="80" height="50" rx="4" fill="#f7971d"/> <g transform="matrix(.1 0 0 .1 86.85 30.15)" stroke-width="10"> <path d="m887-30c-5-2-11-3-17-3-24-2-54 7-68 19l3-97h-57v301h53v-17c25 14 43 21 66 21 66-5 93-64 93-116-1-52-23-97-73-108zm-32 179c-35 0-50-41-50-73s11-65 48-65 48 41 48 70c0 32-11 68-46 68zm-200-85c0 31-2 50-5 58-8 18-24 28-42 29-18-1-26-10-33-23-2-7-3-26-3-56v-100h-58v138c-1 49 25 84 73 84 26 0 54-9 72-28v23h53v-217h-57zm-241-97c-28-1-59 6-74 20v-98h-57v300h57v-109c0-18 2-32 5-41 9-18 24-28 43-28 16 0 25 8 32 20 2 6 3 21 3 44v115h58v-128c0-20-1-34-3-43-12-34-36-51-64-52"/> <path d="m68-45c-24-1-63 8-75 27v-22h-56v229h60v-103c0-26 2-43 5-53 8-20 26-31 45-31 18 0 27 9 34 23 2 7 4 23 4 48v116h60v-142c0-18-1-31-3-41-10-35-41-50-74-51zm-257 27v-22h-56v229h60v-70c0-39 2-65 5-77 4-12 8-21 14-26 6-4 13-7 22-7 8 0 18 4 28 10l19-52c-13-8-26-12-40-12-20 1-40 12-52 27zm-205-27c-22 0-42 5-60 15-19 10-33 24-43 43s-15 38-15 59c0 26 5 48 15 66 10 19 25 33 44 42 19 10 39 14 60 14 34 0 62-11 84-34 23-23 34-51 34-86 0-34-11-63-33-85-23-23-51-34-86-34m40 172c-10 12-24 18-39 18-16 0-29-6-40-18s-16-30-16-52c0-23 5-40 16-52s24-18 40-18c15 0 29 6 39 18 11 12 16 29 16 51 0 23-5 41-16 53m-310-254h-103v316h64v-119h42c51 2 102-6 126-51 7-13 10-29 10-49 0-43-24-81-63-92-12-3-37-5-76-5zm47 138c-9 4-26 5-51 5h-35v-89h31c23 0 38 0 46 2 22 5 36 22 36 42-1 19-11 34-27 40" fill="#fff"/> </g> </svg></li>
+        </ul>
+        <label class="sr-only" for="video-url">Video links</label>
+        <div class="link-input"><svg><use href="#i-link"/></svg><textarea id="video-url" rows="1" placeholder="Paste a video link here…" spellcheck="false" autocomplete="off"></textarea><button id="paste" class="paste-button"><svg><use href="#i-paste"/></svg><span>Paste</span></button></div>
+        <div class="input-help"><span>One link per line. Up to 50 at a time.</span><button class="text-button" id="analyze">Get video details <svg><use href="#i-right"/></svg></button></div>
+        <p class="field-hint">Video posts, Reels, clips and past broadcasts. For posts with several videos, the first video is saved.</p>
+        <div id="input-error" class="inline-error" role="alert" hidden></div>
+        <div id="video-preview" class="video-preview" hidden></div>
+        <div class="panel-divider"></div>
+        <div class="panel-heading options-heading"><span class="step">02</span><h2>Make it yours</h2><span class="optional-label">DOWNLOAD OPTIONS</span></div>
+        <div class="options-grid">
+          <label class="field">Format<select id="format"><option value="mp4">MP4 · Video</option><option value="mkv">MKV · Original quality</option><option value="mp3">MP3 · Audio only</option></select></label>
+          <label class="field">Quality<select id="quality"><option value="best">Best available</option><option value="2160">Up to 4K · 2160p</option><option value="1440">Up to 1440p</option><option value="1080">Up to 1080p</option><option value="720">Up to 720p</option><option value="480">Up to 480p</option><option value="360">Up to 360p</option></select></label>
+        </div>
+        <p id="format-hint" class="field-hint">MP4 favours widely supported codecs. Choose MKV for the best source quality.</p>
+        <div class="destination-row"><svg><use href="#i-folder"/></svg><div><span>Saving to</span><strong id="destination" title="Download folder">Downloads / Downline</strong></div><button id="change-folder" class="text-button">Change</button></div>
+        <div class="panel-actions"><span><svg><use href="#i-check"/></svg> Your files stay on your PC</span><button id="download" class="primary"><svg><use href="#i-arrow"/></svg><span>Add to download queue</span></button></div>
+      </div>
+      <div class="below-panel"><span class="small-symbol">↳</span><p>Paste. Pick. Download.<br><span>No account. No extra tabs. Just your videos.</span></p><span class="keyboard-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> to download</span></div>
+      <section id="recent-section" class="recent-section" hidden><div class="section-heading"><h2>In progress</h2><button class="text-button" data-go="queue">View queue <svg><use href="#i-right"/></svg></button></div><div id="recent-jobs" class="job-list"></div></section>
+    </section>
+    <section id="page-queue" class="page" hidden>
+      <div class="page-heading"><div><div class="eyebrow">KEEP THINGS MOVING</div><h1>Download queue<span>.</span></h1><p id="queue-description">Ready when you are.</p></div><button class="secondary" id="pause-queue"><svg><use href="#i-pause"/></svg><span>Pause queue</span></button></div>
+      <div id="queue-notice" class="notice" hidden>Queue paused. Current downloads will finish. Waiting downloads will start when you resume.</div>
+      <div class="list-toolbar"><span id="queue-summary">0 downloads</span><button class="text-button" data-go="new"><svg><use href="#i-plus"/></svg> Add videos</button></div>
+      <div id="queue-jobs" class="job-list"></div>
+    </section>
+    <section id="page-history" class="page" hidden>
+      <div class="page-heading"><div><div class="eyebrow">SAVED FOR LATER</div><h1>Your history<span>.</span></h1><p>Everything you’ve finished, in one place.</p></div><button class="secondary" id="open-folder"><svg><use href="#i-folder"/></svg>Open folder</button></div>
+      <div class="list-toolbar"><div class="filters"><button class="filter active" data-filter="all">All</button><button class="filter" data-filter="completed">Completed</button><button class="filter" data-filter="failed">Failed / cancelled</button></div><button id="clear-history" class="text-button"><svg><use href="#i-trash"/></svg>Clear history</button></div>
+      <div id="history-jobs" class="job-list"></div>
+    </section>
+    <section id="page-settings" class="page" hidden>
+      <div class="page-heading"><div><div class="eyebrow">A FEW PERSONAL TOUCHES</div><h1>Settle in<span>.</span></h1><p>Make Downline work the way you do.</p></div></div>
+      <form id="settings-form" class="settings-panel">
+        <div class="setting-section"><h2>Downloads</h2><label class="field">Save videos to<div class="input-with-button"><input id="setting-destination" type="text" required spellcheck="false"><button id="browse-destination" type="button" class="secondary">Browse</button></div></label><p class="field-hint">New downloads use this folder. Existing downloads keep their original location.</p>
+        <label class="field narrow-field">Simultaneous downloads<select id="setting-concurrency"><option value="1">1 at a time</option><option value="2">2 at a time</option><option value="3">3 at a time</option></select></label></div>
+        <div class="setting-section"><h2>Privacy</h2><label class="check-row"><input id="setting-history" type="checkbox"><span>Remember download history<small>Stored on this PC. Turning this off stops history from being saved between sessions.</small></span></label><label class="field cookies-field">Cookies file <span class="muted">Optional</span><div class="input-with-button"><input id="setting-cookies" type="text" placeholder="No cookies file selected" spellcheck="false"><button id="browse-cookies" type="button" class="secondary">Browse</button></div></label><p class="field-hint">For videos your own account can access. Use a Netscape cookies.txt export. The file stays on your PC.</p></div>
+        <div class="setting-section engine-section"><div><h2>Download engine</h2><p class="field-hint">Websites change. Updating the engine can fix failed downloads.</p><div id="dependency-list" class="dependency-list"></div></div><button id="update-engine" class="secondary" type="button"><svg><use href="#i-retry"/></svg><span>Check for updates</span></button></div>
+        <div class="settings-footer"><span id="settings-message" role="status"></span><button type="submit" class="primary">Save changes <svg><use href="#i-check"/></svg></button></div>
+      </form>
+      <p class="app-note">Downline 1.0 · Local desktop app · Powered by yt-dlp & FFmpeg</p>
+    </section>
+  </div>
+</main>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="confirm-dialog"><div class="dialog-icon"><svg><use href="#i-alert"/></svg></div><h2 id="confirm-title">Clear history?</h2><p id="confirm-text"></p><div class="dialog-actions"><button id="confirm-no" class="secondary">Keep it</button><button id="confirm-yes" class="primary">Clear history</button></div></dialog>
+</body></html>
