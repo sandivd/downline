@@ -1,8 +1,12 @@
-# Downline
+<div align="center">
+
+# ▶️ Downline
 
 [![Live Demo](https://img.shields.io/badge/Website-online-brightgreen)](https://sandivd.github.io/downline/)
 
 A small local app for Windows and Linux. Download videos from YouTube, Pornhub, Instagram, TikTok, X (Twitter), and Twitch. Flat surfaces, precise spacing, warm light mode, and charcoal dark mode. Built with a Python standard-library backend and an HTML/CSS/JavaScript interface. Downloads are performed by yt-dlp.
+
+</div>
 
 ## Open the app on Windows
 
