@@ -1,7 +1,7 @@
 <div align="center">
 
 <picture>
-  <img src="dist/assets/logo.png" alt="Downline logo" width="160">
+  <img src="dist/assets/logo.png" alt="Downline logo" width="400">
 </picture>
 
 # ▶️ Downline
